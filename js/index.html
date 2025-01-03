@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="https://path-to-your-api-call" method="post" id="valor-checkout-form">
+        <input type="hidden" name="orderId" value="1"/>
+        <div id="valor-fields"></div>
+    </form>
+</body>
+<script src="https://js.valorpaytech.com/V1/js/Passage.min.js" data-name="valor_passage" data-demo="true" data-clientToken="69fdfbf0-c9db-11ef-94a9-0e65225160ad" data-epi="2319923425"></script>
+<script>
+    document.addEventListener("passageHiddenFormAdded", function(event) {
+
+const form = event.detail.form;
+
+form.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+});
+
+});
+</script>
+</html>
