@@ -1,54 +1,19 @@
-/*
- * PassageJS
- * version 1.2.1
- */
-// Define a module for your application
 const PassageJs = (function () {
   'use strict';
-  /**
-   * Primary Assignments
-   * All the Data Attributes are assigned to variables.
-   */
   const passage = document.querySelector("script[data-name='valor_passage']");
-  /**
-   * Get Valor Fields div to append the fields.
-   */
   const valorFieldsDiv = document.getElementById('valor-fields');
-  /**
-   * Session Max Expiry Time in minutes.
-   */
   const sessionExpiryMinutes = 5;
-  /**
-   * Valor Logo URL.
-   */
   const valorLogoUrl = 'https://developer.valorpaytech.com/images/logo.png';
-  /**
-   * Demo Valor URL.
-   */
   const demoValorUrl = 'https://securelink-staging.valorpaytech.com:4430';
-  /**
-   * Live Valor URL.
-   */
   const liveValorUrl = 'https://securelink.valorpaytech.com:4430';
-  // Get the URL of the current script
   const currentScriptUrl = passage.src;
-
-  // Extract the path of the current script
   const scriptPath = currentScriptUrl.substring(0, currentScriptUrl.lastIndexOf('/') + 1);
-
-  // Replace the 'js' directory with the 'images' directory in the directory path
   var baseImageUrl = scriptPath.replace('/js/', '/images/');
-  /**
-   * Check if required data available.
-   */
   if (!passage || !passage.getAttribute('data-clientToken') || !passage.getAttribute('data-epi') || !valorFieldsDiv) {
     return;
   }
   const passageHtmlJson = [];
 
-  /**
-   * Get script Data attributes.
-   */
   const clientToken = passage.getAttribute('data-clientToken');
   const epi = passage.getAttribute('data-epi');
   const isDemo = passage.getAttribute('data-demo') ? true : false;
@@ -84,24 +49,15 @@ const PassageJs = (function () {
   let phoneNumErrorMsg = null;
   let cardName = null;
 
-  /**
-   * Pay now button color and background color.
-   */
   const submitBg = passage.getAttribute('data-submitBg') ? passage.getAttribute('data-submitBg') : '#005cb9';
   const submitColor = passage.getAttribute('data-submitColor') ? passage.getAttribute('data-submitColor') : '#fff';
 
-  /**
-   * Valor form CSS.
-   */
   const valorFormCss = `#valor-checkout-form {width: 80%; font-family: 'roboto'} #valor-logo {margin-bottom: 20px;} #valor-logo img {width: 225px;} #valor-checkout-form label {margin-top: 10px; font-family: roboto; font-weight: 500; color: #697386;}
     #valor-checkout-form input, #valor-checkout-form select {display:block; width: 100%; padding: 6px 12px; color: #555; background-color: #fff; background-image: none; outline: none; font-size: 14px; height: 40px; border: 1px solid rgba(60, 66, 87, 0.12); border-radius: 8px; box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);} #valor-checkout-form input:focus, #valor-checkout-form select:focus {border-color: ${submitBg}; box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(102 175 233 / 60%);} #valor-checkout-form input[type="checkbox"] {width: 17px; height: 17px; vertical-align: sub; display: inline-block;}
     .separator {display: flex; align-items: center; text-align: center;} .separator::before, .separator::after {content: ''; flex: 1; border-bottom: 1px solid #000;} .separator:not(:empty)::before {margin-right: .25em;} .separator:not(:empty)::after {margin-left: .25em;} .gpay-button.new_style {border-radius: 4px !important;} .gpay-button.black.short.new_style, .gpay-button.black.plain.new_style {min-width: 250px !important;}
     #cards .d-flex { width: fit-content; position: absolute; top: 10px; right: 5px; } .d-flex span{ margin: 0 5px;} .card_error{ color: red;} button#passage-submit, div#pay-now { font-family: Roboto; color: ${submitColor}; background: ${submitBg}; width: 45%; border-radius: 4px; border: none; box-shadow: 0px -1px 1px rgb(0 0 0 / 12%), 0px 2px 5px rgb(0 0 0 / 12%), 0px 1px 1px rgb(0 0 0 / 8%); margin: 20px 10px 20px 0; padding: 15px 30px;} #cards { position:relative; } #card_fields,#address_ct{display: flex; width: 100%; justify-content: space-between} #exp,#cvv,#passage-city,#passage-state{width: 50%;} #cc-policy a {font-weight: 800; color: ${submitBg};} button#passage-submit[disabled], button#pay-now[disabled] {cursor: not-allowed; opacity: 0.65;} div#passage-cancel {display: inline-block; font-family: Roboto; color: #fff; background: #000; width: 45%; border-radius: 4px; border: none; box-shadow: 0px -1px 1px rgb(0 0 0 / 12%), 0px 2px 5px rgb(0 0 0 / 12%), 0px 1px 1px rgb(0 0 0 / 8%); margin: 20px 10px; padding: 15px 30px; text-align: center; cursor: pointer;} div#pay-now{ cursor: pointer; text-align:center;} .valor-modal{ position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1050; display: none; justify-content: center; align-items: center; background: #0005;} div#passage-popup-inner{ padding: 15px 20px; background: #fff; border-radius: 5px;box-shadow: 0 5px 15px rgb(0 0 0 / 50%);} div#card-popup{width: 600px; margin: 30px auto; position: relative;}
     @media only screen and (max-width: 580px) {#valor-checkout-form {width: 95%; margin: 5% auto;} button#passage-submit, div#pay-now { margin: 20px 0px;} div#card-popup{ margin: 50% 5%;} div#card-popup{width: 400px; margin: 30px auto; position: relative;}} .passage-loader {display: inline-block;width: 20px;height: 20px;border-radius: 50%;border: 3px solid rgba(0, 0, 0, 0.3);border-top-color: #fff;animation: passage-loader 0.6s linear infinite;margin-left: 5px;vertical-align: middle;} @keyframes passage-loader {to {transform: rotate(360deg);}}`;
 
-  /**
-   * Add Passage JS CSS.
-   */
   function addPassageCss() {
     const head = document.head || document.getElementsByTagName('head')[0];
     const style = document.createElement('style');
@@ -121,6 +77,51 @@ const PassageJs = (function () {
     });
   }
   function buildFormJson() {
+    const isAch = passage.getAttribute('data-ach') ? true : false;
+
+    if (isAch) {
+      passageHtmlJson.push({
+        tag: 'div',
+        id: 'payment-toggle',
+        style: 'display: flex; gap: 10px; margin-bottom: 20px;', // Flex styling for layout
+        children: [
+          {
+            tag: 'button',
+            id: 'card-button',
+            type: 'button',
+            children: ['CARD'],
+            style: `
+              background-color: #005cb9; 
+              color: white; 
+              border: none; 
+              border-radius: 5px; 
+              padding: 10px 20px; 
+              font-size: 16px; 
+              cursor: pointer; 
+              box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+              transition: all 0.3s ease;
+            `,
+          },
+          {
+            tag: 'button',
+            id: 'ach-button',
+            type: 'button',
+            children: ['ACH'],
+            style: `
+              background-color: white; 
+              color: #005cb9; 
+              border: 2px solid #005cb9; 
+              border-radius: 5px; 
+              padding: 10px 20px; 
+              font-size: 16px; 
+              cursor: pointer; 
+              box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+              transition: all 0.3s ease;
+            `,
+          },
+        ],
+      });
+    }
     if (valorLogo === 'true') {
       passageHtmlJson.push({
         tag: 'div',
@@ -309,6 +310,7 @@ const PassageJs = (function () {
     const cardSection = {
       tag: 'div',
       id: 'card-section',
+      style: 'display: block;',
       children: [
         { tag: 'label', id: 'card-label', children: ['Card information'] },
         {
@@ -424,6 +426,125 @@ const PassageJs = (function () {
         },
       ],
     };
+
+    const achSection = {
+      tag: 'div',
+      id: 'ach-section',
+      style: 'display: none;', // Default hidden
+      children: [
+        { tag: 'p', children: ['You clicked ACH.'] },
+        { tag: 'label', children: ['Account Number'] },
+        {
+          tag: 'input',
+          type: 'text',
+          name: 'account_number',
+          id: 'account-number',
+          placeholder: 'Enter Account Number',
+          required: '',
+          style: `
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          `,
+        },
+        { tag: 'label', children: ['Routing Number'] },
+        {
+          tag: 'input',
+          type: 'text',
+          name: 'routing_number',
+          id: 'routing-number',
+          placeholder: 'Enter Routing Number',
+          required: '',
+          style: `
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          `,
+        },
+        { tag: 'label', children: ['Name on Account'] },
+        {
+          tag: 'input',
+          type: 'text',
+          name: 'account_name',
+          id: 'account-name',
+          placeholder: 'Enter Name on Account',
+          required: '',
+          style: `
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          `,
+        },
+        { tag: 'label', children: ['Account Type'] },
+        {
+          tag: 'select',
+          name: 'account_type',
+          id: 'account-type',
+          style: `
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          `,
+          children: [
+            { tag: 'option', value: '', children: ['Select Account Type'] },
+            { tag: 'option', value: 'CHECKING', children: ['CHECKING'] },
+            { tag: 'option', value: 'SAVINGS', children: ['SAVINGS'] },
+          ],
+        },
+        { tag: 'label', children: ['Entry Class'] },
+        {
+          tag: 'select',
+          name: 'entry_class',
+          id: 'entry-class',
+          style: `
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          `,
+          children: [
+            { tag: 'option', value: '', children: ['Select Entry Class'] },
+            { tag: 'option', value: 'BUSINESS', children: ['BUSINESS'] },
+            { tag: 'option', value: 'PERSONAL', children: ['PERSONAL'] },
+          ],
+        },
+        { tag: 'label', children: ['Transaction Type'] },
+        {
+          tag: 'select',
+          name: 'transaction_type',
+          id: 'transaction-type',
+          style: `
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          `,
+          children: [
+            { tag: 'option', value: '', children: ['Select Transaction Type'] },
+            { tag: 'option', value: 'DEBIT', children: ['DEBIT'] },
+            { tag: 'option', value: 'CREDIT', children: ['CREDIT'] },
+          ],
+        },
+      ],
+    };
+    passageHtmlJson.push(achSection);
+
     const cardHolderNameSec = {
       tag: 'div',
       id: 'card-holder-section',
@@ -575,6 +696,46 @@ const PassageJs = (function () {
       });
     }
   }
+
+  function addToggleEvents() {
+    const cardButton = document.getElementById('card-button');
+    const achButton = document.getElementById('ach-button');
+    const cardSection = document.getElementById('card-section');
+    const achSection = document.getElementById('ach-section');
+  
+    if (cardButton && achButton) {
+      cardButton.addEventListener('click', () => {
+        // Toggle button styles
+        cardButton.style.backgroundColor = '#005cb9';
+        cardButton.style.color = 'white';
+        cardButton.style.border = 'none';
+  
+        achButton.style.backgroundColor = 'white';
+        achButton.style.color = '#005cb9';
+        achButton.style.border = '2px solid #005cb9';
+  
+        // Show card section and hide ACH section
+        cardSection.style.display = 'block';
+        achSection.style.display = 'none';
+      });
+  
+      achButton.addEventListener('click', () => {
+        // Toggle button styles
+        achButton.style.backgroundColor = '#005cb9';
+        achButton.style.color = 'white';
+        achButton.style.border = 'none';
+  
+        cardButton.style.backgroundColor = 'white';
+        cardButton.style.color = '#005cb9';
+        cardButton.style.border = '2px solid #005cb9';
+  
+        // Show ACH section and hide card section
+        cardSection.style.display = 'none';
+        achSection.style.display = 'block';
+      });
+    }
+  }
+
   function submitButtonStatus() {
     if (cardNumberValid === true && cardExpValid === true && cardCvvValid === true && phoneNumberValid === true) {
       passageSubmitButton.disabled = false;
@@ -609,37 +770,28 @@ const PassageJs = (function () {
     }
   }
   function phoneFormat() {
-    // Get the current value of the input field
     let value = phoneInput.value;
-  
-    // Use a regular expression to remove non-numeric characters
     value = value.replace(/[^0-9]/g, '');
-  
-    // If the value is empty, clear the input field and return
     if (value === '') {
       phoneInput.value = '';
       return;
     }
-  
-    // If the value is less than 4 characters, update the input field with the value
+
     if (value.length < 4) {
       phoneInput.value = value;
       return;
     }
-  
-    // If the value is less than 7 characters, format it as (XXX) XXX
+
     if (value.length < 7) {
       let formattedValue = '(' + value.slice(0, 3) + ') ' + value.slice(3);
       phoneInput.value = formattedValue;
       return;
     }
-  
-    // Format the value as (XXX) XXX-XXXX
+
     let formattedValue = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6);
     phoneInput.value = formattedValue;
   }
   function validateCardNumber(number) {
-    // Apply the Luhn algorithm to validate the number
     var a, s, i, x;
     a = number.split('').reverse();
     s = 0;
@@ -650,7 +802,6 @@ const PassageJs = (function () {
     return s % 10 == 0;
   }
   function checkCreditCard(cardNumber) {
-    //Error messages
     const ccErrors = [];
     ccErrors[0] = 'Unknown card type';
     ccErrors[1] = 'No card number provided';
@@ -659,19 +810,12 @@ const PassageJs = (function () {
     ccErrors[4] = 'Credit card number has an inappropriate number of digits';
     ccErrors[5] = 'Warning! This credit card number is associated with a scam attempt';
 
-    //Response format
     const response = (success, message = null, type = null) => ({
       message,
       success,
       type,
     });
 
-    // Define the cards we support. You may add additional card types as follows.
-
-    //  Name:         As in the selection box of the form - must be same as user's
-    //  Length:       List of possible valid lengths of the card number for the card
-    //  prefixes:     List of possible prefixes for the card
-    //  checkdigit:   Boolean to say whether there is a check digit
     const cards = [
       {
         cvv: 3,
@@ -717,21 +861,16 @@ const PassageJs = (function () {
       },
     ];
 
-    // Ensure that the user has provided a credit card number
     if (cardNumber.length == 0) {
       return response(false, ccErrors[1]);
     }
 
-    // Now remove any spaces from the credit card number
-    // Update this if there are any other special characters like -
     cardNumber = cardNumber.replace(/\s/g, '');
 
-    // Check it's not a spam number
     if (cardNumber == '5490997771092064') {
       return response(false, ccErrors[5]);
     }
 
-    // The following are the card-specific checks we undertake.
     let lengthValid = false;
     let prefixValid = false;
     let cardCompany = '';
@@ -739,7 +878,6 @@ const PassageJs = (function () {
     let cardNewLength = '';
     let cardIcon;
     let cardCvvLength;
-    // Check if card belongs to any organization
     for (let i = 0; i < cards.length; i++) {
       const prefix = cards[i].prefixes.split(',');
 
@@ -754,28 +892,18 @@ const PassageJs = (function () {
 
       if (prefixValid) {
         const lengths = cards[i].length.split(',');
-        // Now see if its of valid length;
         for (let j = 0; j < lengths.length; j++) {
           if (cardNumber.length == lengths[j]) {
             lengthValid = true;
           }
         }
       } else {
-        // cardNumErrorMsg.innerText = 'Your card number is invalid.';
-        // cardNumInput.classList.add('card-error');
-        // cardNumberValid = false;
         document.querySelectorAll('.card-icon').forEach(function (el) {
           el.style.display = 'none';
         });
       }
 
       if (prefixValid) {
-        // if (cardNumber.length < 13) {
-        //   cardNumberValid = false;
-        //   cardNumErrorMsg.innerText = 'Your card number is incomplete.';
-        //   cardNumInput.classList.add('card-error');
-        // }
-        /* card validation */
         cardCompany = cards[i].name;
         cardLength = cards[i].length.split(',');
         cardNewLength = cardLength.pop();
@@ -795,17 +923,14 @@ const PassageJs = (function () {
         return response(true, null, cardCompany);
       }
     }
-    // If it isn't a valid prefix there's no point at looking at the length
     if (!prefixValid) {
       return response(false, ccErrors[3]);
     }
 
-    // See if all is OK by seeing if the length was valid
     if (!lengthValid) {
       return response(false, ccErrors[4]);
     }
 
-    // The credit card is in the required format.
     return response(true, null, cardCompany);
   }
 
@@ -847,38 +972,21 @@ const PassageJs = (function () {
         }
       });
     }
-    // Get the input element
-    const zipCodeInput = document.getElementById("cc-zip-code");
+    const zipCodeInput = document.getElementById('cc-zip-code');
     if (zipCodeInput) {
-      // Add an event listener for input
-      zipCodeInput.addEventListener("input", function(e) {
-        // Get the entered value
+      zipCodeInput.addEventListener('input', function (e) {
         const inputValue = e.target.value;
-
-        // Remove any non-numeric characters
         const cleanValue = inputValue.replace(/[^a-zA-Z0-9]/g, '');
-        // Keep only the first 6 characters
-        const truncatedValue = cleanValue.substring(0, 6)
-
-        // Update the input value to the cleaned value
+        const truncatedValue = cleanValue.substring(0, 6);
         if (inputValue !== cleanValue) {
           e.target.value = truncatedValue;
         }
       });
-
-      // Add an event listener for paste
-      zipCodeInput.addEventListener("paste", function(e) {
-        // Get the pasted text
+      zipCodeInput.addEventListener('paste', function (e) {
         const pastedText = e.clipboardData.getData('text');
-
-        // Remove any non-numeric characters
         const cleanText = pastedText.replace(/[^a-zA-Z0-9]/g, '');
-        // Keep only the first 6 characters
         const truncatedText = cleanText.substring(0, 6);
-        // Set the input value to the truncated text
         e.target.value = truncatedText;
-
-        // Prevent the default paste behavior
         e.preventDefault();
       });
     }
@@ -985,7 +1093,6 @@ const PassageJs = (function () {
       submitButtonStatus();
     }
     if (phone === 'true') {
-      // Phone number format
       phoneInput.addEventListener('input', phoneFormat);
       phoneInput.addEventListener('load', phoneFormat);
       phoneInput.addEventListener('blur', phoneNumBlur);
@@ -1016,9 +1123,7 @@ const PassageJs = (function () {
   function passageSubmitAction() {
     const form = document.querySelector('#valor-checkout-form');
 
-    // Attach an event listener to the form submit event
     form.addEventListener('submit', event => {
-      // Prevent the default form submission
       event.preventDefault();
       if (!cardNumberValid || !cardExpValid || !cardCvvValid) {
         alert('Enter valid card information');
@@ -1029,7 +1134,6 @@ const PassageJs = (function () {
       loader.classList.add('passage-loader');
       passageSubmitButton.insertAdjacentElement('afterend', loader);
       try {
-        // Get the form data
         const formData = new FormData(form);
         const data = {
           client_token: clientToken,
@@ -1039,7 +1143,6 @@ const PassageJs = (function () {
           expirydate: formData.get('cc_exp').replace(' / ', ''),
         };
         const queryString = new URLSearchParams(data).toString();
-        // Make a request to the API to modify the form data
         fetch(`${apiUrl}?${queryString}`, {
           headers: {
             Accept: '*/*',
@@ -1062,11 +1165,8 @@ const PassageJs = (function () {
 
             const valorHiddenForm = document.getElementById('valorpay-hidden-form');
             if (valorHiddenForm) {
-              // Remove the existing element from the DOM
               valorHiddenForm.parentNode.removeChild(valorHiddenForm);
             }
-            // Trigger the submit event on the form
-            // Create a hidden form element with the modified form data
             const hiddenForm = document.createElement('form');
             hiddenForm.setAttribute('id', 'valorpay-hidden-form');
             hiddenForm.style.display = 'none';
@@ -1074,7 +1174,6 @@ const PassageJs = (function () {
             hiddenForm.action = form.action;
 
             document.body.appendChild(hiddenForm);
-            // Add a hidden input element for each key-value pair in the modified form data
             for (const [key, value] of formData.entries()) {
               const input = document.createElement('input');
               input.type = 'hidden';
@@ -1088,7 +1187,6 @@ const PassageJs = (function () {
               },
             });
             document.dispatchEvent(formAddedEvent);
-            // Submit the hidden form
             const hiddenButton = document.createElement('input');
             hiddenButton.style.display = 'none';
             hiddenButton.type = 'submit';
@@ -1103,15 +1201,12 @@ const PassageJs = (function () {
             return;
           });
       } catch (error) {
-        // Handle any errors that occur during the payment process
         alert('Payment request failed. Please try again.');
       }
     });
   }
   function startSessionTimer() {
-    // Set the timer for session expiry minute
     setTimeout(function () {
-      // Hide submit button after expiry minutes
       alert('Your payment session has expired. Please start a new payment session to continue with your purchase.');
       passageSubmitButton.style.display = 'none';
     }, sessionExpiryMinutes * 60 * 1000);
@@ -1123,6 +1218,7 @@ const PassageJs = (function () {
       buildFormJson();
       let passageElement = document.getElementById('valor-fields');
       buildIntoDom(passageElement, passageHtmlJson);
+      addToggleEvents();
       if (cardVariant === 'lightbox') {
         lightBoxPopupEvents();
       }
@@ -1134,7 +1230,6 @@ const PassageJs = (function () {
   };
 })();
 
-// Initialize the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
   PassageJs.init();
 });
